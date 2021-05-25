@@ -1,14 +1,20 @@
-# 8. Посчитать, сколько раз встречается определенная цифра в введенной
-# последовательности чисел. Количество вводимых чисел и цифра, которую необходимо
-# посчитать, задаются вводом с клавиатуры.
+# 3. В массиве случайных целых чисел поменять местами минимальный и
+# максимальный элементы.
 
+import random
 
-u_range = input('Введите последовательность: ')
-u_find = input('Введите цифру для поиска: ')
-count = 0
+rand = [random.randint(-100, 100) for _ in range(10)]
+print(f'Массив до изменения: {rand}')
 
-for i in u_range:
-    if i == u_find:
-        count += 1
+max_ = rand[0]
+min_ = rand[0]
 
-print(f'Цифра встречается {u_find} в последовательности {u_range}: {count} раз.')
+for i in rand:
+    if i > max_:
+        max_ = i
+    elif i < min_:
+        min_ = i
+min_num = rand.index(min_)
+max_num = rand.index(max_)
+rand[min_num], rand[max_num] = rand[max_num], rand[min_num]
+print(f'Массив после перестановки элементов {min_num} и {max_num}: {rand}')
