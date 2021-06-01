@@ -1,105 +1,94 @@
-# Написать два алгоритма нахождения i-го по счёту простого числа.
-# Функция нахождения простого числа должна принимать на вход натуральное и возвращать соответствующее простое число.
-# Проанализировать скорость и сложность алгоритмов.
-# Первый — с помощью алгоритма «Решето Эратосфена».
-
-import math
-import timeit
-import cProfile
+# Написать программу сложения и умножения двух шестнадцатеричных чисел.
+# При этом каждое число представляется как массив, элементы которого — цифры числа.
+# Например, пользователь ввёл A2 и C4F. Нужно сохранить их как [‘A’, ‘2’] и [‘C’, ‘4’, ‘F’] соответственно.
+# Сумма чисел из примера: [‘C’, ‘F’, ‘1’], произведение - [‘7’, ‘C’, ‘9’, ‘F’, ‘E’].
 
 
-def sieve_without_eratosthenes(i):
-    '''Функция поиска i-го простого числа,
-    без использования алгоритма «Решето Эратосфена»
-    '''
-
-    lst_prime = [2]
-    number = 3
-    while len(lst_prime) < i:
-        flag = True
-        for j in lst_prime.copy():
-            if number % j == 0:
-                flag = False
-                break
-        if flag:
-            lst_prime.append(number)
-        number += 1
-    return lst_prime[-1]
+from collections import deque
 
 
-def sieve_eratosthenes(i):
-    '''Функция поиска i-го простого числа,
-    используя алгоритм «Решето Эратосфена»
-    '''
+def sum_hex(x, y):
+    HEX_NUM = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+               'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15,
+               0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
+               10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
+    result = deque()
+    transfer = 0
 
-    i_max = prime_counting_function(i)
-    lst_prime = [_ for _ in range(2, i_max)]
+    if len(y) > len(x):
+        x, y = deque(y), deque(x)
 
-    for number in lst_prime:
-        if lst_prime.index(number) <= number - 1:
-            for j in range(2, len(lst_prime)):
-                if number * j in lst_prime[number:]:
-                    lst_prime.remove(number * j)
+    else:
+        x, y = deque(x), deque(y)
+
+    while x:
+
+        if y:
+            res = HEX_NUM[x.pop()] + HEX_NUM[y.pop()] + transfer
+
         else:
-            break
-    return lst_prime[i - 1]
+            res = HEX_NUM[x.pop()] + transfer
+
+        transfer = 0
+
+        if res < 16:
+            result.appendleft(HEX_NUM[res])
+
+        else:
+            result.appendleft(HEX_NUM[res - 16])
+            transfer = 1
+
+    if transfer:
+        result.appendleft('1')
+
+    return list(result)
 
 
-def prime_counting_function(i):
-    number_of_primes = 0
-    number = 2
-    while number_of_primes <= i:
-        number_of_primes = number / math.log(number)
-        number += 1
-    return number
+def mult_hex(x, y):
+    HEX_NUM = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+               'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15,
+               0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
+               10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
+    result = deque()
+    spam = deque([deque() for _ in range(len(y))])
+
+    x, y = x.copy(), deque(y)
+
+    for i in range(len(y)):
+        m = HEX_NUM[y.pop()]
+
+        for j in range(len(x) - 1, -1, -1):
+            spam[i].appendleft(m * HEX_NUM[x[j]])
+
+        for _ in range(i):
+            spam[i].append(0)
+
+    transfer = 0
+
+    for _ in range(len(spam[-1])):
+        res = transfer
+
+        for i in range(len(spam)):
+            if spam[i]:
+                res += spam[i].pop()
+
+        if res < 16:
+            result.appendleft(HEX_NUM[res])
+
+        else:
+            result.appendleft(HEX_NUM[res % 16])
+            transfer = res // 16
+
+    if transfer:
+            result.appendleft(HEX_NUM[transfer])
+
+    return list(result)
 
 
-user_number = int(input('Введите номер по счету простого числа: '))
-print(sieve_without_eratosthenes(user_number))
+a = list(input('Введите первое шестнадцатиричное число: ').upper())
+b = list(input('Введите второе шестнадцатиричное число: ').upper())
+# print(a, b)
 
-print('Алгоритм 1 без использования алгоритма «Решето Эратосфена»')
-print(
-    f'{sieve_without_eratosthenes(user_number)} - {user_number} \
-по счёту простое число'
-)
+print(*a, '+', *b, '=', *sum_hex(a, b))
 
-print('Алгоритм 2 с использованием алгоритма «Решето Эратосфена»')
-print(
-    f'{sieve_eratosthenes(user_number)} - {user_number} по счёту простое число')
-
-# print(timeit.timeit('sieve_without_eratosthenes(100)', number=1000, globals=globals()))  # 0.7230837999999999
-
-# cProfile.run('sieve_without_eratosthenes(100)')
-#       1182 function calls in 0.001 seconds
-#
-# Ordered by: standard name
-#
-# ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-#      1    0.000    0.000    0.001    0.001 <string>:1(<module>)
-#      1    0.001    0.001    0.001    0.001 task_2.py:11(sieve_without_eratosthenes)
-#      1    0.000    0.000    0.001    0.001 {built-in method builtins.exec}
-#    540    0.000    0.000    0.000    0.000 {built-in method builtins.len}
-#     99    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
-#    539    0.000    0.000    0.000    0.000 {method 'copy' of 'list' objects}
-#      1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-
-
-# print(timeit.timeit('sieve_eratosthenes(100)', number=1000, globals=globals()))  #12.3186172
-
-# cProfile.run('sieve_eratosthenes(100)')
-
-#       1418 function calls in 0.012 seconds
-#
-# Ordered by: standard name
-#
-# ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-#      1    0.000    0.000    0.012    0.012 <string>:1(<module>)
-#      1    0.010    0.010    0.011    0.011 task_2.py:30(sieve_eratosthenes)
-#      1    0.000    0.000    0.000    0.000 task_2.py:36(<listcomp>)
-#      1    0.000    0.000    0.000    0.000 task_2.py:48(prime_counting_function)
-#      1    0.000    0.000    0.012    0.012 {built-in method builtins.exec}
-#    118    0.000    0.000    0.000    0.000 {built-in method builtins.len}
-#    647    0.000    0.000    0.000    0.000 {built-in method math.log}
-#      1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-#    118    0.000    0.000    0.000    0.000 {method 'index' of 'list' objects}
-#    529    0.001    0.000    0.001    0.000 {method 'remove' of 'list' objects}
+print(*a, '*', *b, '=', *mult_hex(a, b))
