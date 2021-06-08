@@ -1,94 +1,45 @@
-# Написать программу сложения и умножения двух шестнадцатеричных чисел.
-# При этом каждое число представляется как массив, элементы которого — цифры числа.
-# Например, пользователь ввёл A2 и C4F. Нужно сохранить их как [‘A’, ‘2’] и [‘C’, ‘4’, ‘F’] соответственно.
-# Сумма чисел из примера: [‘C’, ‘F’, ‘1’], произведение - [‘7’, ‘C’, ‘9’, ‘F’, ‘E’].
+# 2. Отсортируйте по возрастанию методом слияния одномерный вещественный
+# массив, заданный случайными числами на промежутке [0; 50). Выведите на экран
+# исходный и отсортированный массивы.
+
+from random import randint
+
+MAX_SIZE = 50
+
+def merge_sort(data):
+
+    if len(data) < 2:
+        return data
+
+    mid = len(data) // 2
+
+    left_part = data[:mid]
+    right_part = data[mid:]
+
+    left_part = merge_sort(left_part)
+    right_part = merge_sort(right_part)
+
+    return merge_list(left_part, right_part)
 
 
-from collections import deque
-
-
-def sum_hex(x, y):
-    HEX_NUM = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-               'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15,
-               0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
-               10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
-    result = deque()
-    transfer = 0
-
-    if len(y) > len(x):
-        x, y = deque(y), deque(x)
-
-    else:
-        x, y = deque(x), deque(y)
-
-    while x:
-
-        if y:
-            res = HEX_NUM[x.pop()] + HEX_NUM[y.pop()] + transfer
-
+def merge_list(list_1, list_2):
+    result = []
+    i = 0
+    j = 0
+    while i < len(list_1) and j < len(list_2):
+        if list_1[i] <= list_2[j]:
+            result.append(list_1[i])
+            i += 1
         else:
-            res = HEX_NUM[x.pop()] + transfer
+            result.append(list_2[j])
+            j += 1
 
-        transfer = 0
-
-        if res < 16:
-            result.appendleft(HEX_NUM[res])
-
-        else:
-            result.appendleft(HEX_NUM[res - 16])
-            transfer = 1
-
-    if transfer:
-        result.appendleft('1')
-
-    return list(result)
+    result += list_1[i:]
+    result += list_2[j:]
+    return result
 
 
-def mult_hex(x, y):
-    HEX_NUM = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-               'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15,
-               0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
-               10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
-    result = deque()
-    spam = deque([deque() for _ in range(len(y))])
+numbers = [randint(0, 50) for _ in range(MAX_SIZE)]
 
-    x, y = x.copy(), deque(y)
-
-    for i in range(len(y)):
-        m = HEX_NUM[y.pop()]
-
-        for j in range(len(x) - 1, -1, -1):
-            spam[i].appendleft(m * HEX_NUM[x[j]])
-
-        for _ in range(i):
-            spam[i].append(0)
-
-    transfer = 0
-
-    for _ in range(len(spam[-1])):
-        res = transfer
-
-        for i in range(len(spam)):
-            if spam[i]:
-                res += spam[i].pop()
-
-        if res < 16:
-            result.appendleft(HEX_NUM[res])
-
-        else:
-            result.appendleft(HEX_NUM[res % 16])
-            transfer = res // 16
-
-    if transfer:
-            result.appendleft(HEX_NUM[transfer])
-
-    return list(result)
-
-
-a = list(input('Введите первое шестнадцатиричное число: ').upper())
-b = list(input('Введите второе шестнадцатиричное число: ').upper())
-# print(a, b)
-
-print(*a, '+', *b, '=', *sum_hex(a, b))
-
-print(*a, '*', *b, '=', *mult_hex(a, b))
+print(numbers)
+print(merge_sort(numbers))
